@@ -16,3 +16,9 @@ jobs:
       - name: Multi line step
         run: |
           pwd
+      - name: Display GitHub Variables
+        run: |
+          echo "Repository: ${{ github.repository }}"
+          echo "Actor: ${{ github.actor }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "SHA: ${{ github.sha }}"
