@@ -10,6 +10,8 @@ on:
 jobs:
   echo-job:
     runs-on: ubuntu-latest
+    env:
+      JOB_LEVEL_VAR: "available-to-all-steps"
     steps:
       - name: Echo Message
         run: echo "Hello, DevOps!"
@@ -25,3 +27,61 @@ jobs:
       - name: Use Variables
         run: |
           echo "Variable: ${{ vars.MY_VARIABLE }}"
+      - name: Use Secrets
+        run: |
+          echo "Secret: ${{ secrets.MY_SECRET }}"
+      - name: Display Runner Info
+        run: |
+          echo "OS: ${{ runner.os }}"
+          echo "Name: ${{ runner.name }}"
+      - name: Step Variables
+        env:
+          CUSTOM_VAR: "custom-value"
+        run: |
+          echo "Custom: $CUSTOM_VAR"
+      - name: Set Environment Variable
+        run: |
+          echo "MY_VALUE=test123" >> $GITHUB_ENV
+      
+      - name: Use Environment Variable
+        run: |
+          echo "Value: $MY_VALUE"
+      - name: Set Step Output
+        id: step1
+        run: |
+          echo "message=Hello from step 1" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date)" >> $GITHUB_OUTPUT
+      
+      - name: Use Step Output
+        run: |
+          echo "Message: ${{ steps.step1.outputs.message }}"
+          echo "Timestamp: ${{ steps.step1.outputs.timestamp }}"
+jobs:
+  output-job:
+    runs-on: ubuntu-latest
+    outputs:
+      job_message: ${{ steps.set-output.outputs.message }}
+    steps:
+      - name: Set Output
+        id: set-output
+        run: echo "message=Hello from job" >> $GITHUB_OUTPUT
+
+  input-job:
+    needs: output-job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Output
+        run: echo "${{ needs.output-job.outputs.job_message }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+      - name: Make Changes and Commit
+        run: |
+          echo "New content" >> file.txt
+          git add file.txt
+          git commit -m "Update file from workflow [skip ci]"
+          git push
