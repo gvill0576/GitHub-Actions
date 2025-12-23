@@ -22,3 +22,6 @@ jobs:
           echo "Actor: ${{ github.actor }}"
           echo "Ref: ${{ github.ref }}"
           echo "SHA: ${{ github.sha }}"
+      - name: Use Variables
+        run: |
+          echo "Variable: ${{ vars.MY_VARIABLE }}"
